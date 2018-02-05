@@ -2,7 +2,7 @@
 
 IMPORTANT: pix2deg (ie number of pixels per deg) must be entered at top of flowDots function. This can be calculated as display.resolution(1)/angular width of the projection in the dome if required.
 
-flowDots is the function to call. 
+flowDots is the function to call. See function for optional inputs.
 movingDotsDome is the actual stimulus function. 
 linv2angv and angv2linv are support functions.
 
