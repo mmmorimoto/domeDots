@@ -1,4 +1,4 @@
-function [time] = movingDotsDome(display,dots,duration)
+function [time] = movingDotsDomeNOISErnd(display,dots,duration)
 
 % The 'dots' structure must have the following parameters:
 %
@@ -66,6 +66,13 @@ goodDots = false(zeros(1,nDots));
 %Calculate total number of temporal frames
 nFrames = round(duration*display.frameRate);
 
+% Set incoherent directions (travel in straight lines for this version)
+dots(i).dx(1:nDots) = NaN;
+dots(i).dy(1:nDots) = NaN;
+nCoherent = ceil(dots(i).coherence*dots(i).nDots);  %Start w/ all random directions
+inCoherent = dots(i).nDots - nCoherent;
+
+
 
 %% Loop through the frames
 pause(0.00001)
@@ -83,6 +90,9 @@ for frameNum=1:nFrames
             .*(dots(i).x./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
         dots(i).dy = dots(i).direction*dots(i).vel...
             .*(dots(i).y./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
+        
+        dots(i).dx(1:inCoherent) = randn(1,inCoherent);
+        dots(i).dy(1:inCoherent) = randn(1,inCoherent);
         
         %Update the dot position's in degs
         dots(i).x = dots(i).x + dots(i).dx;

@@ -18,6 +18,7 @@ addParameter(Params,'dims',[-90, 90, -50, 50] ,@isvector) % left, right, bottom,
 addParameter(Params,'size',{},@isvector) % ref size at refangle
 addParameter(Params,'speed',{},@isvector) %ref speed at refangle
 addParameter(Params,'density',{},@isvector) %this is dots/deg^2 -> might want area coverage.
+addParameter(Params,'coherence',1,@isvector) % vector of values between 0 and 1
 addParameter(Params,'colour',[255 255 255],@isvector)
 addParameter(Params,'flow',1,@isnumeric) % 1 for expanding, -1 for contracting
 
@@ -28,6 +29,7 @@ refangle = Params.Results.refangle;
 stimdur = Params.Results.stimdur;
 ITI = Params.Results.ITI;
 shuffle = Params.Results.shuffle;
+coherence = Params.Results.coherence;
 
 %% create dots structs for each trial
 % initialise dot structs with constant parameters
@@ -39,7 +41,7 @@ dots(1).apDims = Params.Results.dims; % left,right,bottom,top [90,90,40,40]
 dots(1).center = [0,0];
 dots(1).color = dotcolour;
 dots(1).size = NaN;
-dots(1).coherence = 1;
+dots(1).coherence = NaN;
 
 % area of aperture (pi*r(1)*r(2)) - dont think theres any need to split
 apArea = 0.5*pi*dots.apDims(1)*dots.apDims(3)... % bottom half
@@ -47,27 +49,30 @@ apArea = 0.5*pi*dots.apDims(1)*dots.apDims(3)... % bottom half
 
 % deal with user inputs (variable parameters)
 nreps = Params.Results.nreps;
-size = Params.Results.size; 
-speed = Params.Results.speed; 
-density = Params.Results.density; 
+size = Params.Results.size;
+speed = Params.Results.speed;
+density = Params.Results.density;
 %convert ref inputs to moving dot function inputs
-numdots = round(density.*apArea); 
+numdots = round(density.*apArea);
 speed = angv2linv(speed,display.dist,refangle); % create input speeds for moving dot function
 size = angv2linv(size,display.dist,refangle); % create input sizes for moving dot function
 
-nUniqueTrials = length(speed)*length(density)*length(size); % no of unique trials
+nUniqueTrials = length(speed)*length(density)*length(size)*length(coherence); % no of unique trials
 dots = repmat(dots,1,nUniqueTrials); % create base structs w/ constant params
 
 % fill in variable parameters (user inputs)
 trialidx = 0;
-for speedidx = 1:length(speed)
-    for sizeidx = 1:length(size)
-        for numdotsidx = 1:length(numdots)
-            trialidx = trialidx + 1;
-            dots(trialidx).speed = speed(speedidx);
-            dots(trialidx).size = size(sizeidx);
-            dots(trialidx).nDots = numdots(numdotsidx);
-            dots(trialidx).density = density(numdotsidx);
+for cohidx = 1:length(coherence)
+    for speedidx = 1:length(speed)
+        for sizeidx = 1:length(size)
+            for numdotsidx = 1:length(numdots)
+                trialidx = trialidx + 1;
+                dots(trialidx).speed = speed(speedidx);
+                dots(trialidx).size = size(sizeidx);
+                dots(trialidx).nDots = numdots(numdotsidx);
+                dots(trialidx).density = density(numdotsidx);
+                dots(trialidx).coherence = coherence(cohidx);
+            end
         end
     end
 end
@@ -109,8 +114,10 @@ times = NaN*ones(length(dots),2);
 startTime = GetSecs;
 
 for trialidx = 1:length(dots)
-[times(trialidx,:)] = movingDotsDome(display,dots(trialidx),stimdur);
-waitTill(ITI);
+    %[times(trialidx,:)] = movingDotsDome(display,dots(trialidx),stimdur);
+    %[times(trialidx,:)] = movingDotsDomeNOISEstr(display,dots(trialidx),stimdur);
+    [times(trialidx,:)] = movingDotsDomeNOISErnd(display,dots(trialidx),stimdur);
+    waitTill(ITI);
 end
 
 times = times-startTime; % remove if you want comp time
@@ -118,6 +125,6 @@ times = times-startTime; % remove if you want comp time
 % convert dot parameters back to user input values.
 for i = length(dots):-1:1
     dots(i).speed = linv2angv(dots(i).speed,display.dist,refangle);
-    dots(i).size = linv2angv(dots(i).size,60,45);
+    dots(i).size = linv2angv(dots(i).size,display.dist,refangle);
 end
 sca

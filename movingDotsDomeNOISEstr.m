@@ -1,4 +1,4 @@
-function [time] = movingDotsDome(display,dots,duration)
+function [time] = movingDotsDomeNOISEstr(display,dots,duration)
 
 % The 'dots' structure must have the following parameters:
 %
@@ -66,6 +66,13 @@ goodDots = false(zeros(1,nDots));
 %Calculate total number of temporal frames
 nFrames = round(duration*display.frameRate);
 
+% Set incoherent directions (travel in straight lines for this version)
+dots(i).dx(1:nDots) = NaN;
+dots(i).dy(1:nDots) = NaN;
+nCoherent = ceil(dots(i).coherence*dots(i).nDots);  %Start w/ all random directions
+inCoherent = dots(i).nDots - nCoherent;
+dots(i).dx(end:-1:nCoherent+1) = randn(1,inCoherent);
+dots(i).dy(end:-1:nCoherent+1) = randn(1,inCoherent); %Set the 'coherent' directions
 
 %% Loop through the frames
 pause(0.00001)
@@ -75,26 +82,26 @@ for frameNum=1:nFrames
     for i=1:length(dots)  %Loop through the fields (probably just 1)
         
         % could this be streamlined??
-        dots(i).velx = linv2angv(dots(i).speed,display.dist,dots(i).x); %in deg...
-        dots(i).vely = linv2angv(dots(i).speed,display.dist,dots(i).y);
-        dots(i).vel = sqrt(((dots(i).velx).^2)+((dots(i).vely).^2));
+        dots(i).velx(1:nCoherent) = linv2angv(dots(i).speed,display.dist,dots(i).x(1:nCoherent)); %in deg...
+        dots(i).vely(1:nCoherent) = linv2angv(dots(i).speed,display.dist,dots(i).y(1:nCoherent));
+        dots(i).vel(1:nCoherent) = sqrt(((dots(i).velx).^2)+((dots(i).vely).^2));
         
-        dots(i).dx = dots(i).direction*dots(i).vel...
-            .*(dots(i).x./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
-        dots(i).dy = dots(i).direction*dots(i).vel...
-            .*(dots(i).y./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
+        dots(i).dx(1:nCoherent) = dots(i).direction*dots(i).vel(1:nCoherent)...
+            .*(dots(i).x(1:nCoherent)./(sqrt(((dots(i).x(1:nCoherent)).^2)+(dots(i).y(1:nCoherent)).^2)))/display.frameRate;
+        dots(i).dy(1:nCoherent) = dots(i).direction*dots(i).vel(1:nCoherent)...
+            .*(dots(i).y(1:nCoherent)./(sqrt(((dots(i).x(1:nCoherent)).^2)+(dots(i).y(1:nCoherent)).^2)))/display.frameRate;
         
         %Update the dot position's in degs
         dots(i).x = dots(i).x + dots(i).dx;
         dots(i).y = dots(i).y + dots(i).dy;
         
-        % find dots outside aperture, symmetrical currently, 
+        % find dots outside aperture, symmetrical currently,
         badDots = (((dots(i).x-dots(i).center(1)).^2)/(dots(i).apDims(1))^2 + ...
             ((dots(i).y-dots(i).center(2)).^2)/(dots(i).apDims(4))^2) > 1;
         
         dots(i).x(badDots) = (rand(1,sum(badDots))-.5).*abs(dots(i).apDims(1).*1) + dots(i).center(1); %.*1 to stop clustering at perim.
         dots(i).y(badDots) = (rand(1,sum(badDots))-.5).*abs(dots(i).apDims(4).*1) + dots(i).center(2); % random replace within inner area
-
+        
         % Convert deg positions to pixels
         pixpos.x = dots(i).x.*(display.pix2deg)+ display.resolution(1)/2; %angle2pix(display,dots(i).x)+ display.resolution(1)/2;
         pixpos.y = dots(i).y.*(display.pix2deg)+ display.resolution(2)/2; %angle2pix(display,dots(i).y)+ display.resolution(2)/2;
@@ -103,7 +110,7 @@ for frameNum=1:nFrames
         dots(i).sizx = linv2angv(dots(i).size,display.dist,dots(i).x);
         dots(i).sizy = linv2angv(dots(i).size,display.dist,dots(i).y);
         sizes = display.pix2deg.*sqrt(((dots(i).sizx).^2)+((dots(i).sizy).^2)); %should be right
-        sizes(sizes<1)=1; 
+        sizes(sizes<1)=1;
         
         % not necessary anymore...using  badDots instead
         %goodDots = (((dots(i).x-dots(i).center(1)).^2)/(dots(i).apDims(1))^2 + ...
@@ -126,15 +133,15 @@ end
 
 %% Extras
 
-        % Dot lifetimes + deaths + replacement
-        %dots(i).life = dots(i).life+1; %Increment the 'life' of each dot
-        %Find the 'dead' dots
-        %deadDots = mod(dots(i).life,dots(i).lifetime)==0; %Find the 'dead' dots
-        %Replace the positions of the dead dots to random locations
-        %dots(i).x(deadDots) = (rand(1,sum(deadDots))-.5)*dots(i).apertureSize(1)...
-        %+ dots(i).center(1);
-        %dots(i).y(deadDots) = (rand(1,sum(deadDots))-.5)*dots(i).apertureSize(2)...
-        %+ dots(i).center(2);
-        
-        % ignore unless using multiple apertures simultaenously
-        %id = order(count:(count+dots(i).nDots-1));
+% Dot lifetimes + deaths + replacement
+%dots(i).life = dots(i).life+1; %Increment the 'life' of each dot
+%Find the 'dead' dots
+%deadDots = mod(dots(i).life,dots(i).lifetime)==0; %Find the 'dead' dots
+%Replace the positions of the dead dots to random locations
+%dots(i).x(deadDots) = (rand(1,sum(deadDots))-.5)*dots(i).apertureSize(1)...
+%+ dots(i).center(1);
+%dots(i).y(deadDots) = (rand(1,sum(deadDots))-.5)*dots(i).apertureSize(2)...
+%+ dots(i).center(2);
+
+% ignore unless using multiple apertures simultaenously
+%id = order(count:(count+dots(i).nDots-1));
