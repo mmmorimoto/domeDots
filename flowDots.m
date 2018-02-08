@@ -4,7 +4,7 @@ function [dots, times] = flowDots(varargin)
 % relative to the startTime of each stimulus interval.
 
 % NEED PIXEL/DEG RATIO
-pix2deg = 30;
+pix2deg = 10;
 display.dist = 60;
 
 Params = inputParser;
@@ -38,7 +38,7 @@ dots(1).speed = NaN;
 dots(1).direction = Params.Results.flow; % do for expand/contract
 dots(1).lifetime = NaN; % infinite lifetime atm.
 dots(1).apDims = Params.Results.dims; % left,right,bottom,top [90,90,40,40]
-dots(1).center = [0,0];
+dots(1).center = [0,30];
 dots(1).color = dotcolour;
 dots(1).size = NaN;
 dots(1).coherence = NaN;
@@ -92,11 +92,10 @@ end
 display.dist = 60; % need to input;
 display.width = 100;
 display.skipChecks = 1;
-display.screenNum = 1; % 0 for mac, 1 for external
+display.screenNum = 2; % 0 for mac, 1 for external
 display.bkColor = [128,128,128];
 display.fixation.color = {[0,0,0],[0,0,0]};
 display.fixation.mask = 3;
-display.pix2deg = pix2deg;
 
 try
     display.skipChecks =1;
@@ -109,6 +108,7 @@ catch ME
     Screen('CloseAll');
     rethrow(ME)
 end
+display.pix2deg = display.resolution(1)/180;
 %% run the dots
 times = NaN*ones(length(dots),2);
 startTime = GetSecs;
@@ -117,7 +117,8 @@ for trialidx = 1:length(dots)
     %[times(trialidx,:)] = movingDotsDome(display,dots(trialidx),stimdur);
     %[times(trialidx,:)] = movingDotsDomeNOISEstr(display,dots(trialidx),stimdur);
     [times(trialidx,:)] = movingDotsDomeNOISErnd(display,dots(trialidx),stimdur);
-    waitTill(ITI);
+%     waitTill(ITI);
+pause(1)
 end
 
 times = times-startTime; % remove if you want comp time
