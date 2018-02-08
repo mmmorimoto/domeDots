@@ -52,11 +52,23 @@ if display.skipChecks
 end
 
 Screen('Preference', 'SuppressAllWarnings', 1);
-
-
-%Open the window
-[display.windowPtr,res]=Screen('OpenWindow',display.screenNum,display.bkColor);
-
+if ispc
+    [a,b]=system('hostname');
+    if strcmp(b(1:end-1), 'saleem08')
+        %Adding the meshmapping
+%         RigInfo.dirScreenCalib = 'C:\Home\Code\SaleemLab-VR\VRCentral\gen\';%'C:\Home\Code\VR-Stimulus-master\Linear Track Behav - 2pNew - Dev Version - Copy\'%'C:\Users\Aman\AppData\Roaming\Psychtoolbox\GeometryCalibration\';%'C:\Users\experimenter\AppData\Roaming\Psychtoolbox\GeometryCalibration\';
+%                     RigInfo.filenameScreenCalib =  'MeshMapping_VR.mat';%'geometricC
+PsychImaging('PrepareConfiguration');        
+transformFile = 'C:\Home\Code\SaleemLab-VR\VRCentral\gen\MeshMapping_VR.mat';
+        PsychImaging('AddTask', 'AllViews', 'GeometryCorrection', transformFile);
+        PsychImaging('AddTask', 'AllViews', 'FlipHorizontal');
+        [display.windowPtr, res] = PsychImaging('OpenWindow', display.screenNum,display.bkColor);
+    else
+        [display.windowPtr,res]=Screen('OpenWindow',display.screenNum,display.bkColor);
+    end
+else
+    [display.windowPtr,res]=Screen('OpenWindow',display.screenNum,display.bkColor);
+end
 %Set the display parameters 'frameRate' and 'resolution'
 display.frameRate = 1/Screen('GetFlipInterval',display.windowPtr); %Hz
 
