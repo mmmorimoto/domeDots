@@ -69,7 +69,7 @@ nFrames = round(duration*display.frameRate);
 % create indexing for incoherent dots
 dots(i).dx(1:nDots) = NaN;
 dots(i).dy(1:nDots) = NaN;
-nCoherent = ceil(dots(i).coherence*dots(i).nDots);  %Start w/ all random directions
+nCoherent = ceil(dots(i).coherence*dots(i).nDots);  
 inCoherent = dots(i).nDots - nCoherent;
 
 
