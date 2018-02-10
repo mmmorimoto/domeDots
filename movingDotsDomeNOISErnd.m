@@ -39,10 +39,10 @@ Screen('BlendFunction', display.windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 %count = 1;
 for i = 1
     %Calculate the left, right top and bottom of each aperture (in degrees)
-    l(i) = dots.apDims(1);
-    r(i) = dots.apDims(2);
-    b(i) = dots.apDims(3);
-    t(i) = dots.apDims(4);
+    l(i) = dots(i).center(1)+dots.apDims(1);
+    r(i) = dots(i).center(1)+dots.apDims(2);
+    b(i) = dots(i).center(2)+dots.apDims(3);
+    t(i) = dots(i).center(2)+dots.apDims(4);
     
     %Generate random starting positions
     dots(i).x = (rand(1,dots(i).nDots)-.5)*dots(i).apDims(1).*1.95 + dots(i).center(1);
@@ -66,7 +66,7 @@ goodDots = false(zeros(1,nDots));
 %Calculate total number of temporal frames
 nFrames = round(duration*display.frameRate);
 
-% Set incoherent directions (travel in straight lines for this version)
+% create indexing for incoherent dots
 dots(i).dx(1:nDots) = NaN;
 dots(i).dy(1:nDots) = NaN;
 nCoherent = ceil(dots(i).coherence*dots(i).nDots);  %Start w/ all random directions
@@ -82,8 +82,8 @@ for frameNum=1:nFrames
     for i=1:length(dots)  %Loop through the fields (probably just 1)
         
         % could this be streamlined??
-        dots(i).velx = linv2angv(dots(i).speed,display.dist,dots(i).x); %in deg...
-        dots(i).vely = linv2angv(dots(i).speed,display.dist,dots(i).y);
+        dots(i).velx = linv2angv(dots(i).speed,display.dist,dots(i).x-dots(i).center(1)); %angular vel
+        dots(i).vely = linv2angv(dots(i).speed,display.dist,dots(i).y-dots(i).center(2)); % in deg/s
         dots(i).vel = sqrt(((dots(i).velx).^2)+((dots(i).vely).^2));
         
         dots(i).dx = dots(i).direction*dots(i).vel...
@@ -98,7 +98,7 @@ for frameNum=1:nFrames
         dots(i).x = dots(i).x + dots(i).dx;
         dots(i).y = dots(i).y + dots(i).dy;
         
-        % find dots outside aperture, symmetrical currently, 
+        % find dots outside aperture, symmetrical currently, might want to change for top/bottom
         badDots = (((dots(i).x-dots(i).center(1)).^2)/(dots(i).apDims(1))^2 + ...
             ((dots(i).y-dots(i).center(2)).^2)/(dots(i).apDims(4))^2) > 1;
         
@@ -110,8 +110,8 @@ for frameNum=1:nFrames
         pixpos.y = dots(i).y.*(display.pix2deg)+ display.resolution(2)/2; %angle2pix(display,dots(i).y)+ display.resolution(2)/2;
         
         % sizes of dots based on position
-        dots(i).sizx = linv2angv(dots(i).size,display.dist,dots(i).x);
-        dots(i).sizy = linv2angv(dots(i).size,display.dist,dots(i).y);
+        dots(i).sizx = linv2angv(dots(i).size,display.dist,dots(i).x-dots(i).center(1));
+        dots(i).sizy = linv2angv(dots(i).size,display.dist,dots(i).y-dots(i).center(2));
         sizes = display.pix2deg.*sqrt(((dots(i).sizx).^2)+((dots(i).sizy).^2)); %should be right
         sizes(sizes<1)=1; 
         
