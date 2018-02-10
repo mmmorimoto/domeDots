@@ -87,9 +87,9 @@ for frameNum=1:nFrames
         dots(i).vel(1:nCoherent) = sqrt(((dots(i).velx).^2)+((dots(i).vely).^2));
         
         dots(i).dx(1:nCoherent) = dots(i).direction*dots(i).vel(1:nCoherent)...
-            .*(dots(i).x(1:nCoherent)./(sqrt(((dots(i).x(1:nCoherent)).^2)+(dots(i).y(1:nCoherent)).^2)))/display.frameRate;
+            .*((dots(i).x(1:nCoherent)-dots(i).center(1))./(sqrt(((dots(i).x(1:nCoherent)).^2)+(dots(i).y(1:nCoherent)).^2)))/display.frameRate;
         dots(i).dy(1:nCoherent) = dots(i).direction*dots(i).vel(1:nCoherent)...
-            .*(dots(i).y(1:nCoherent)./(sqrt(((dots(i).x(1:nCoherent)).^2)+(dots(i).y(1:nCoherent)).^2)))/display.frameRate;
+            .*((dots(i).y(1:nCoherent)-dots(i).center(2))./(sqrt(((dots(i).x(1:nCoherent)).^2)+(dots(i).y(1:nCoherent)).^2)))/display.frameRate;
         
         %Update the dot position's in degs
         dots(i).x = dots(i).x + dots(i).dx;
