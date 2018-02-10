@@ -115,11 +115,16 @@ for frameNum=1:nFrames
         sizes = display.pix2deg.*sqrt(((dots(i).sizx).^2)+((dots(i).sizy).^2)); %should be right
         sizes(sizes<1)=1; 
         
+        dots(i).speed = dots(i).speed+dots(i).acc/display.frameRate ; % acceleration
+        dots(i).speed(dots(i).speed<0) = 0; % can't decelerate to < 0
+        
+        
         % not necessary anymore...using  badDots instead
         %goodDots = (((dots(i).x-dots(i).center(1)).^2)/(dots(i).apDims(1))^2 + ...
         %    ((dots(i).y-dots(i).center(2)).^2)/(dots(i).apDims(4))^2) < 1;
         %count = count+dots(i).nDots;
     end
+    
     
     %Draw all fields at once - THIS ONE WORKS
     Screen('DrawDots',display.windowPtr,[pixpos.x;pixpos.y],...
