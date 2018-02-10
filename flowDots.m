@@ -3,9 +3,14 @@ function [dots, times] = flowDots(varargin)
 % Outputs are shuffled dot struct array in order of presentation and the times
 % relative to the startTime of each stimulus interval.
 
-% NEED PIXEL/DEG RATIO
-pix2deg = 10;
-display.dist = 60;
+% display settings
+display.dist = 60; 
+%display.width = 100; not used for dome.
+display.skipChecks = 1;
+display.screenNum = 0; % 0 for mac, 1 for external
+display.bkColor = [128,128,128];
+display.fixation.color = {[0,0,0],[0,0,0]};
+display.fixation.mask = 3;
 
 Params = inputParser;
 addParameter(Params,'stimdur',1,@isnumeric) % in s
@@ -21,6 +26,7 @@ addParameter(Params,'density',{},@isvector) %this is dots/deg^2 -> might want ar
 addParameter(Params,'coherence',1,@isvector) % vector of values between 0 and 1
 addParameter(Params,'colour',[255 255 255],@isvector)
 addParameter(Params,'flow',1,@isnumeric) % 1 for expanding, -1 for contracting
+addParameter(Params,'acc',0,@isvector)
 
 parse(Params,varargin{:})
 
@@ -30,6 +36,7 @@ stimdur = Params.Results.stimdur;
 ITI = Params.Results.ITI;
 shuffle = Params.Results.shuffle;
 coherence = Params.Results.coherence;
+acc = Params.Results.acc;
 
 %% create dots structs for each trial
 % initialise dot structs with constant parameters
@@ -42,6 +49,7 @@ dots(1).center = [0,0]; % This is FOE (measured in deg)
 dots(1).color = dotcolour;
 dots(1).size = NaN;
 dots(1).coherence = NaN;
+dots(1).acc = NaN;
 
 % area of aperture (pi*r(1)*r(2)) - dont think theres any need to split
 apArea = 0.5*pi*dots.apDims(1)*dots.apDims(3)... % bottom half
@@ -57,7 +65,7 @@ numdots = round(density.*apArea);
 speed = angv2linv(speed,display.dist,refangle); % create input speeds for moving dot function
 size = angv2linv(size,display.dist,refangle); % create input sizes for moving dot function
 
-nUniqueTrials = length(speed)*length(density)*length(size)*length(coherence); % no of unique trials
+nUniqueTrials = length(speed)*length(density)*length(size)*length(coherence)*length(acc); % no of unique trials
 dots = repmat(dots,1,nUniqueTrials); % create base structs w/ constant params
 
 % fill in variable parameters (user inputs)
@@ -66,12 +74,15 @@ for cohidx = 1:length(coherence)
     for speedidx = 1:length(speed)
         for sizeidx = 1:length(size)
             for numdotsidx = 1:length(numdots)
-                trialidx = trialidx + 1;
-                dots(trialidx).speed = speed(speedidx);
-                dots(trialidx).size = size(sizeidx);
-                dots(trialidx).nDots = numdots(numdotsidx);
-                dots(trialidx).density = density(numdotsidx);
-                dots(trialidx).coherence = coherence(cohidx);
+                for accidx = 1:length(acc)
+                    trialidx = trialidx + 1;
+                    dots(trialidx).speed = speed(speedidx);
+                    dots(trialidx).size = size(sizeidx);
+                    dots(trialidx).nDots = numdots(numdotsidx);
+                    dots(trialidx).density = density(numdotsidx);
+                    dots(trialidx).coherence = coherence(cohidx);
+                    dots(trialidx).acc = acc(accidx)
+                end
             end
         end
     end
@@ -87,15 +98,7 @@ if shuffle == 1
     dots = dots_shuf;
 end
 
-%% display struct
-
-display.dist = 60; % need to input;
-display.width = 100;
-display.skipChecks = 1;
-display.screenNum = 2; % 0 for mac, 1 for external
-display.bkColor = [128,128,128];
-display.fixation.color = {[0,0,0],[0,0,0]};
-display.fixation.mask = 3;
+%% open screen
 
 try
     display.skipChecks =1;
@@ -108,17 +111,17 @@ catch ME
     Screen('CloseAll');
     rethrow(ME)
 end
-display.pix2deg = display.resolution(1)/180;
+display.pix2deg = display.resolution(1)/180; 
+
 %% run the dots
 times = NaN*ones(length(dots),2);
 startTime = GetSecs;
 
 for trialidx = 1:length(dots)
-    %[times(trialidx,:)] = movingDotsDome(display,dots(trialidx),stimdur);
     %[times(trialidx,:)] = movingDotsDomeNOISEstr(display,dots(trialidx),stimdur);
     [times(trialidx,:)] = movingDotsDomeNOISErnd(display,dots(trialidx),stimdur);
-%     waitTill(ITI);
-pause(1)
+    waitTill(ITI);
+    %pause(1)
 end
 
 times = times-startTime; % remove if you want comp time
