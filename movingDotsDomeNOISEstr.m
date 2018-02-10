@@ -39,10 +39,10 @@ Screen('BlendFunction', display.windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 %count = 1;
 for i = 1
     %Calculate the left, right top and bottom of each aperture (in degrees)
-    l(i) = dots.apDims(1);
-    r(i) = dots.apDims(2);
-    b(i) = dots.apDims(3);
-    t(i) = dots.apDims(4);
+    l(i) = dots(i).center(1)+dots.apDims(1);
+    r(i) = dots(i).center(1)+dots.apDims(2);
+    b(i) = dots(i).center(2)+dots.apDims(3);
+    t(i) = dots(i).center(2)+dots.apDims(4);
     
     %Generate random starting positions
     dots(i).x = (rand(1,dots(i).nDots)-.5)*dots(i).apDims(1).*1.95 + dots(i).center(1);
@@ -69,10 +69,10 @@ nFrames = round(duration*display.frameRate);
 % Set incoherent directions (travel in straight lines for this version)
 dots(i).dx(1:nDots) = NaN;
 dots(i).dy(1:nDots) = NaN;
-nCoherent = ceil(dots(i).coherence*dots(i).nDots);  %Start w/ all random directions
-inCoherent = dots(i).nDots - nCoherent;
+nCoherent = ceil(dots(i).coherence*dots(i).nDots);  % number of coherent dots
+inCoherent = dots(i).nDots - nCoherent; %number of incoherent dots
 dots(i).dx(end:-1:nCoherent+1) = randn(1,inCoherent);
-dots(i).dy(end:-1:nCoherent+1) = randn(1,inCoherent); %Set the 'coherent' directions
+dots(i).dy(end:-1:nCoherent+1) = randn(1,inCoherent); %Set the 'incoherent' directions
 
 %% Loop through the frames
 pause(0.00001)
@@ -82,8 +82,8 @@ for frameNum=1:nFrames
     for i=1:length(dots)  %Loop through the fields (probably just 1)
         
         % could this be streamlined??
-        dots(i).velx(1:nCoherent) = linv2angv(dots(i).speed,display.dist,dots(i).x(1:nCoherent)); %in deg...
-        dots(i).vely(1:nCoherent) = linv2angv(dots(i).speed,display.dist,dots(i).y(1:nCoherent));
+        dots(i).velx(1:nCoherent) = linv2angv(dots(i).speed,display.dist,dots(i).x(1:nCoherent)-dots(i).center(1)); %in deg...
+        dots(i).vely(1:nCoherent) = linv2angv(dots(i).speed,display.dist,dots(i).y(1:nCoherent)-dots(i).center(2));
         dots(i).vel(1:nCoherent) = sqrt(((dots(i).velx).^2)+((dots(i).vely).^2));
         
         dots(i).dx(1:nCoherent) = dots(i).direction*dots(i).vel(1:nCoherent)...
@@ -107,8 +107,8 @@ for frameNum=1:nFrames
         pixpos.y = dots(i).y.*(display.pix2deg)+ display.resolution(2)/2; %angle2pix(display,dots(i).y)+ display.resolution(2)/2;
         
         % sizes of dots based on position
-        dots(i).sizx = linv2angv(dots(i).size,display.dist,dots(i).x);
-        dots(i).sizy = linv2angv(dots(i).size,display.dist,dots(i).y);
+        dots(i).sizx = linv2angv(dots(i).size,display.dist,dots(i).x-dots(i).center(1));
+        dots(i).sizy = linv2angv(dots(i).size,display.dist,dots(i).y-dots(i).center(2));
         sizes = display.pix2deg.*sqrt(((dots(i).sizx).^2)+((dots(i).sizy).^2)); %should be right
         sizes(sizes<1)=1;
         
