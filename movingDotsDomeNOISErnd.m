@@ -87,9 +87,9 @@ for frameNum=1:nFrames
         dots(i).vel = sqrt(((dots(i).velx).^2)+((dots(i).vely).^2));
         
         dots(i).dx = dots(i).direction*dots(i).vel...
-            .*(dots(i).x./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
+            .*((dots(i).x-dots(i).center(1))./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
         dots(i).dy = dots(i).direction*dots(i).vel...
-            .*(dots(i).y./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
+            .*((dots(i).y-dots(i).center(2))./(sqrt(((dots(i).x).^2)+(dots(i).y).^2)))/display.frameRate;
         
         dots(i).dx(1:inCoherent) = randn(1,inCoherent);
         dots(i).dy(1:inCoherent) = randn(1,inCoherent);
