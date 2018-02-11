@@ -120,8 +120,8 @@ startTime = GetSecs;
 for trialidx = 1:length(dots)
     %[times(trialidx,:)] = movingDotsDomeNOISEstr(display,dots(trialidx),stimdur);
     [times(trialidx,:)] = movingDotsDomeNOISErnd(display,dots(trialidx),stimdur);
-    waitTill(ITI);
-    %pause(1)
+    %waitTill(ITI);
+    pause(1)
 end
 
 times = times-startTime; % remove if you want comp time
