@@ -81,7 +81,7 @@ for cohidx = 1:length(coherence)
                     dots(trialidx).nDots = numdots(numdotsidx);
                     dots(trialidx).density = density(numdotsidx);
                     dots(trialidx).coherence = coherence(cohidx);
-                    dots(trialidx).acc = acc(accidx)
+                    dots(trialidx).acc = acc(accidx);
                 end
             end
         end
