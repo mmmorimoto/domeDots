@@ -121,6 +121,12 @@ try
 	screens=Screen('Screens');
 	screenNumber=max(screens);
     
+    %% Set Mesh Mapping and flip whole image
+%     PsychImaging('PrepareConfiguration');        
+%     transformFile = 'C:\Home\Code\SaleemLab-VR\VRCentral\gen\MeshMapping_VR.mat';
+%         PsychImaging('AddTask', 'AllViews', 'GeometryCorrection', transformFile);
+%         PsychImaging('AddTask', 'AllViews', 'FlipHorizontal');
+        
     %% Color value setting
     % Find the color values which correspond to white and black: Usually
 	% black is always 0 and white 255, but this rule is not true if one of
