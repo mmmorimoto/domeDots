@@ -203,9 +203,11 @@ try
     % just fill with the same color as the background color of the screen
     % 'gray'. The transparency (aka alpha) channel is filled with a
     % gaussian (exp()) aperture mask:
+    % m is a factor to match the gaussian mask to grating size (visible patch)
+    m=400/gratingsize;
     mask=ones(2*texsize+1, 2*texsize+1, 2) * gray;
     [x,y]=meshgrid(-1*texsize:1*texsize,-1*texsize:1*texsize);
-    mask(:, :, 2)=white * (1 - exp(-((x/90).^2)-((y/90).^2)));
+    mask(:, :, 2)=white * (1 - exp(-((x/90*m).^2)-((y/90*m).^2)));
     masktex=Screen('MakeTexture', w, mask);
 
     %% Query maximum useable priorityLevel on this system:
