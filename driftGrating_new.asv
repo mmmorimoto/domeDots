@@ -1,4 +1,5 @@
 function [time]=driftGrating_new(angle, cyclespersecond, f, drawmask, gratingsize, position, duration, geometrycorrection)
+
 % 
 % Optional parameters:
 %
@@ -87,6 +88,12 @@ try
          PsychImaging('PrepareConfiguration'); 
     end
     
+    PsychImaging('PrepareConfiguration');        
+    transformFile = 'C:\Home\Code\SaleemLab-VR\VRCentral\gen\MeshMapping_Tron.mat';
+        PsychImaging('AddTask', 'AllViews', 'GeometryCorrection', transformFile);
+%         PsychImaging('AddTask', 'AllViews', 'FlipHorizontal');
+        
+>>>>>>> 948445037b45360c6bdc89298806aa2b678dc120
     %% Color value setting
     % Find the color values which correspond to white and black
 	white=WhiteIndex(screenNumber);
@@ -171,6 +178,16 @@ try
     % machines that can't handle a redraw every 40 ms. If your machine is
     % fast enough, uncomment this to get more accurate timing.
     %Priority(priorityLevel);
+<<<<<<< HEAD
+=======
+    
+    %% Definition of the drawn rectangle on the screen:
+    % Compute it to  be the visible size of the grating, centered on the
+    % screen:
+    dstRect=[0 0 visiblesize visiblesize];
+    dstRect=CenterRect(dstRect, screenRect);
+    dstRect = OffsetRect(dstRect,shiftx,shifty);
+>>>>>>> 948445037b45360c6bdc89298806aa2b678dc120
 
     %% Query duration of one monitor refresh interval:
     ifi=Screen('GetFlipInterval', w);
@@ -203,14 +220,18 @@ try
     shiftperframe= cyclespersecond * p * waitduration;
     
 %% Animation
-    % Get local rect of screen
+<<<<<<< HEAD
+    % Get local rectangle coordinate of screen
     rect=Screen('Rect', w);
 
+=======
+>>>>>>> 948445037b45360c6bdc89298806aa2b678dc120
     % Perform initial Flip to sync us to the VBL and for getting an initial
     % VBL-Timestamp as timing baseline for our redraw loop:
     Screen('Flip', w);
     WaitSecs(5);
     
+<<<<<<< HEAD
     % Loop for each location
     % Definition of the drawn rectangle on the screen:
     % Compute it to  be the visible size of the grating, centered on the
@@ -219,11 +240,11 @@ try
         pos=position(j); 
         switch pos
             case 1
-                shiftx=200; shifty=200;
+                shiftx=400; shifty=200;
             case 2
-                shiftx=200; shifty=400;
+                shiftx=600; shifty=200;
             case 3
-                shiftx=-200; shifty=200;
+                shiftx=500; shifty=-100;
             otherwise
                 disp('invalid position')
         end
@@ -233,6 +254,8 @@ try
     dstRect = OffsetRect(dstRect,shiftx,shifty);
     
     % Loop for each angle
+=======
+>>>>>>> 948445037b45360c6bdc89298806aa2b678dc120
     for k=1:length(angle)
     vbl=GetSecs;
     time(k,1)=GetSecs;
@@ -257,10 +280,13 @@ try
                 % Draw gaussian mask over grating:
                 Screen('DrawTexture', w, masktex, [0 0 visiblesize visiblesize], dstRect, angle(k));
             end;
+<<<<<<< HEAD
         
         % Draw white rectangle at bottom right corner
-        Screen('FillRect', w, white, [rect(3)-100,rect(4)-50,rect(3),rect(4)]);    
+        Screen('FillRect', w, white, [rect(3)-50,rect(4)-50,rect(3),rect(4)]);    
         
+=======
+>>>>>>> 948445037b45360c6bdc89298806aa2b678dc120
         % Flip 'waitframes' monitor refresh intervals after last redraw.
         vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
         
@@ -272,9 +298,16 @@ try
         end
         time(k,2)=GetSecs;
         Screen('Flip',w);
+<<<<<<< HEAD
+%         % Draw black rectangle at bottom right corner
+%         Screen('FillRect', w, black, [rect(3)-50,rect(4)-50,rect(3),rect(4)]); 
         WaitSecs(1);
     end
     end
+=======
+        WaitSecs(1);
+    end
+>>>>>>> 948445037b45360c6bdc89298806aa2b678dc120
     
     WaitSecs(4);
     time(:,3)= time(:,2)-time(:,1);        
