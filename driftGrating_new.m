@@ -81,7 +81,7 @@ try
     %% Set Mesh Mapping and flip whole image
     if geometrycorrection==1
         PsychImaging('PrepareConfiguration');        
-        transformFile = 'C:\Home\Code\SaleemLab-VR\VRCentral\gen\MeshMapping_Tron.mat';
+        transformFile = 'Z:\Code\MeshMapping\MeshMapping_Tron1.mat';
             PsychImaging('AddTask', 'AllViews', 'GeometryCorrection', transformFile);
     %         PsychImaging('AddTask', 'AllViews', 'FlipHorizontal');
     else
@@ -206,7 +206,9 @@ try
 %% Animation
     % Get local rectangle coordinate of screen
     rect=Screen('Rect', w);
-
+    % Draw black rectangle to mark center of screen
+    Screen('FillRect', w, black, [rect(3)/2-5,rect(4)/2-5,rect(3)/2+5,rect(4)/2+5]);
+        
     % Perform initial Flip to sync us to the VBL and for getting an initial
     % VBL-Timestamp as timing baseline for our redraw loop:
     Screen('Flip', w);
@@ -220,11 +222,11 @@ try
         pos=position(j); 
         switch pos
             case 1
-                shiftx=400; shifty=200;
+                shiftx=200; shifty=200;
             case 2
-                shiftx=600; shifty=200;
+                shiftx=400; shifty=200;
             case 3
-                shiftx=500; shifty=-100;
+                shiftx=300; shifty=27;
             otherwise
                 disp('invalid position')
         end
