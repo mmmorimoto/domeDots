@@ -1,6 +1,5 @@
 function [time]=driftGrating_new(angle, cyclespersecond, f, drawmask, gratingsize, position, duration, geometrycorrection)
 
-% 
 % Optional parameters:
 %
 % angle = Angle of the grating with respect to the vertical direction.
@@ -8,7 +7,10 @@ function [time]=driftGrating_new(angle, cyclespersecond, f, drawmask, gratingsiz
 % f = Frequency of grating in cycles per pixel.
 % drawmask = If set to 1, a gaussian aperture is drawn over the grating.
 % gratingsize = Visible size of grating in screen pixels.
-%
+% position = 1:40deg(MLaxis),0deg(DVaxis),2:80deg(MLaxis),0deg(DVaxis),3:60deg(MLaxis),35deg(DVaxis)
+% duration = suration of the presentation of patch in sec
+% geometrycorrection = 1: with meshmapping, else no transformation
+
 % Modified from DriftDemo2
 % MM 2018 Feb
 
@@ -277,7 +279,7 @@ try
         Screen('Flip',w);
 %         % Draw black rectangle at bottom right corner
 %         Screen('FillRect', w, black, [rect(3)-50,rect(4)-50,rect(3),rect(4)]); 
-        WaitSecs(1);
+        %WaitSecs(1);
     end
     end
     
