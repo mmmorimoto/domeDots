@@ -1,4 +1,4 @@
-function [time]=driftGrating_new(angle, cyclespersecond, f, drawmask, gratingsize, position, duration, geometrycorrection)
+function [time]=driftGrating_new(angle, cyclespersecond, f, drawmask, gratingsize, position, duration, geometrycorrection,wait)
 
 % Optional parameters:
 %
@@ -279,12 +279,13 @@ try
         Screen('Flip',w);
 %         % Draw black rectangle at bottom right corner
 %         Screen('FillRect', w, black, [rect(3)-50,rect(4)-50,rect(3),rect(4)]); 
-        %WaitSecs(1);
+        
     end
+    WaitSecs(wait);
     end
     
     WaitSecs(4);
-    time(:,3)= time(:,2)-time(:,1);        
+    %time(:,3)= time(:,2)-time(:,1);        
     % Restore normal priority scheduling in case something else was set
     % before:
     Priority(0);
